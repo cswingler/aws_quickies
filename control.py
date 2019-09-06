@@ -1,7 +1,7 @@
 import boto3
+import datetime
 
 class AControl():
-    ec2_resource = boto3.resource('ec2')
     ec2_client = boto3.client('ec2')
 
     def find_instances(self, search_name):
@@ -28,6 +28,38 @@ class AControl():
             for instance in reservation['Instances']:
                 found_instances.append(instance)
         return found_instances
+
+    def filter_instance_data_human(self, instances):
+        """
+        Returns a simplified output of the requested data and fields, all human-readable.
+        :param instances: a list returned from find_instances()
+        :return:
+        """
+
+        return_l = []
+
+
+        for i in instances:
+            r_val = {}
+            tags = i['Tags']
+            for t in tags:
+                if t['Key'] == 'Name':
+                    r_val['Name'] = t['Value']
+                if t['Key'] == 'Squad':
+                    r_val['Squad'] = t['Value']
+            r_val['InstanceType'] = i['InstanceType']
+            r_val['InstanceAge'] = str(datetime.datetime.now(datetime.timezone.utc) - i['LaunchTime'])
+            r_val['InstanceId'] = i['InstanceId']
+            r_val['State'] = i['State']['Name']
+            r_val['PrivateIpAddress'] = i['PrivateIpAddress']
+
+            return_l.append(r_val)
+
+        return return_l
+
+
+
+
 
 
 
